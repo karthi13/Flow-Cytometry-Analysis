@@ -1,8 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+
+//import css
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'filepond/dist/filepond.min.css';
+import 'react-datepicker/dist/react-datepicker.css';
+
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+
 
 ReactDOM.render(<App />, document.getElementById('root'));
 

@@ -1,0 +1,10 @@
+.filepond--item {
+    width: calc(50% - .5em);
+}
+
+.fileComponent{
+
+    margin: 10px !important;
+
+
+}

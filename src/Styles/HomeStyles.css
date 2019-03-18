@@ -1,0 +1,35 @@
+.fileContainer{
+    margin: 10px !important;
+}
+
+.formContainer{
+    justify-content: flex-start;
+    text-align: start !important;
+}
+
+.container{
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+}
+
+.datepicker{
+    font-size: 1rem !important;
+    border-radius: 4px !important;
+    box-shadow: inset 0 2px 2px #e9e9e9 !important;
+    border: 1px solid #aeaeae !important  ;
+    line-height: 1.5 !important;
+    padding: 6px 10px 5px !important;
+    height: calc(1.5em + .75rem + 2px) !important;
+    padding: .375rem .75rem;
+    font-weight: 400;
+    --font-family-sans-serif: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    --font-family-monospace: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+
+.datepicker:focus{
+    color: #495057!important;
+    background-color: #fff !important;
+    border-color: #80bdff !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25)!important;
+}
