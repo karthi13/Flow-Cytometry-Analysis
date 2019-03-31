@@ -1,29 +1,32 @@
 import React, { Component } from 'react';
 import {
     Card, Form, Col, Button,
-    Container, FormGroup, Row
+    Container, FormGroup, Row, ListGroup
 } from 'react-bootstrap';
 
 import DatePicker from 'react-datepicker';
 import '../Styles/HomeStyles.css';
+import { ModalComponent } from './index'
+import axios from 'axios';
 
 export default class FormAnalysisComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
             validated: false,
-            value: new Date().toISOString()
+            value: new Date(),
+            modalShow: false,
+            sendPreprocessData : {}
         };
+
+        // this.getFilesFromBucket= this.getFilesFromBucket.bind(this);
+        this.getSelectedFiles = this.getSelectedFiles.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange = e => {
-        if (e.target.files[0]) {
-            const image = e.target.files[0];
-            this.setState({ value: image });
-        }
-    }
+    handleChange (date) { this.setState({ value: date }); }
 
-    handleSubmit(event) {
+    handleSubmit (event) {
         const form = event.currentTarget;
         if (form.checkValidity() === false) {
             event.preventDefault();
@@ -32,8 +35,46 @@ export default class FormAnalysisComponent extends Component {
         this.setState({ validated: true });
     }
 
+    getSelectedFiles(data) {
+        this.setState({
+            ...this.state,
+            modalShow: !this.state.modalShow,
+            selectedFiles : data
+        });
+    }
+
+
+    async getFilesFromBucket() {
+        const fileFromBucket = await axios.get('http://127.0.0.1:8000/file/upload/').then(
+            response => {
+                // console.log(response.data)
+                return response.data;
+            }
+        ).catch(err => console.log(err))
+        // console.log(fileFromBucket)
+        return fileFromBucket;
+    }
+
+    async componentDidMount() {
+        const data = await this.getFilesFromBucket();
+        console.log(data)
+        this.setState({ ...this.state, data })
+        console.log(this.state)
+    }
+
+
     render() {
+
         const { validated } = this.state;
+        const files = this.state.data ? this.state.data.files : null;
+        const selected = this.state.selectedFiles ? this.state.selectedFiles.map((state,index) =>{
+            return <ListGroup.Item key={index}>{this.state.data.files[state]}</ListGroup.Item>
+        }): null;
+
+        console.log(this.state.filter)
+
+        let modalClose = () => this.setState({ modalShow: false });
+
         return (
             <Card className="formContainer">
                 <Container>
@@ -42,41 +83,54 @@ export default class FormAnalysisComponent extends Component {
                         validated={validated}
                         onSubmit={e => this.handleSubmit(e)}
                     >
+                        <Form.Row>
+                            <Form.Group as={Col} controlId="formGridState">
+                                <Form.Label className='margin20'>Select Files to Preprocess</Form.Label>
+                                <Button
 
+                                    variant="primary"
+                                    onClick={() => this.setState({ modalShow: true })}
+                                >
+                                    Select Files
+                                </Button>
+                                <ModalComponent show={this.state.modalShow} onHide={modalClose} body={files} passstate={this.getSelectedFiles} />
+
+                            </Form.Group>
+                        </Form.Row>
                         <Form.Row>
                             <Form.Group as={Col} md="12">
                                 <Form.Label>Project Description</Form.Label>
-                                <Form.Control as="textarea" rows="3" required/>
+                                <Form.Control as="textarea" rows="2" required />
                             </Form.Group>
                         </Form.Row>
                         <Form.Row>
                             <Form.Group as={Col} md={6}>
                                 <Form.Label>Date</Form.Label>
                                 <FormGroup controlId="required">
-                                    <DatePicker required className="datepicker" required onChange={this.handleChange} placeholder="Placeholder" value={this.state.value} id="required_example" />
+                                    <DatePicker required className="datepicker" onChange={this.handleChange} placeholder="Placeholder" selected={this.state.value} id="required_example" />
                                 </FormGroup>
                             </Form.Group>
                             <Form.Group as={Col} md={6}>
                                 <Form.Label>Radios</Form.Label>
                                 <Form.Group as={Row} controlId="formHorizontalCheck">
-                                <Col sm={{  offset: 1 }}>
-                                    <Form.Check
-                                        type="radio"
-                                        label="Influent"
-                                        name="formHorizontalRadios"
-                                        id="formHorizontalRadios1"
+                                    <Col sm={{ offset: 1 }}>
+                                        <Form.Check
+                                            type="radio"
+                                            label="Influent"
+                                            name="formHorizontalRadios"
+                                            id="formHorizontalRadios1"
 
-                                    />
+                                        />
                                     </Col>
-                                    <Col sm={{ offset: 1 }}>            
-                                    <Form.Check
-                                        type="radio"
-                                        label="Effluent"
-                                        name="formHorizontalRadios"
-                                        id="formHorizontalRadios2"
-                                    />
+                                    <Col sm={{ offset: 1 }}>
+                                        <Form.Check
+                                            type="radio"
+                                            label="Effluent"
+                                            name="formHorizontalRadios"
+                                            id="formHorizontalRadios2"
+                                        />
                                     </Col>
-                                </Form.Group>    
+                                </Form.Group>
                             </Form.Group>
                         </Form.Row>
 
@@ -84,7 +138,7 @@ export default class FormAnalysisComponent extends Component {
                         <Form.Row>
                             <Form.Group as={Col} md="6" controlId="validationCustom03">
                                 <Form.Label>Filter</Form.Label>
-                                <Form.Control type="text" placeholder="Filter" required />
+                                <Form.Control type="text" placeholder="Filter" required onChange={(e) => this.setState({ filter: e.target.value })} />
                             </Form.Group>
                             <Form.Group as={Col} md="6" controlId="validationCustom04">
                                 <Form.Label>Plant</Form.Label>
@@ -96,15 +150,14 @@ export default class FormAnalysisComponent extends Component {
                             </Form.Group>
                         </Form.Row>
                         <Form.Group>
-                            <Form.Check
-                                required
-                                label="Agree to terms and conditions"
-                                feedback="You must agree before submitting."
-                            />
+                            <ListGroup>
+                                {selected}
+                            </ListGroup>
                         </Form.Group>
-                        <Button type="submit">Analyze</Button>
+                        <Button type="submit">Preprocess</Button>
                     </Form>
                 </Container>
+
             </Card>
         );
     }

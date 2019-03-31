@@ -8,3 +8,18 @@
 
 
 }
+
+.modal-dialog{
+    overflow-y: initial !important
+}
+.modal-body{
+    height: 175px;
+    overflow-y: auto;
+}
+
+.form-check {
+    position: relative;
+    display: block;
+    padding-left: 1.25rem;
+    margin: 8px !important;
+}
