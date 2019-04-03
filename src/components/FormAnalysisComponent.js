@@ -61,7 +61,7 @@ export default class FormAnalysisComponent extends Component {
 
 
     async getFilesFromBucket() {
-        const fileFromBucket = await axios.get('http://127.0.0.1:8000/file/upload/').then(
+        const fileFromBucket = await axios.get('http://35.239.90.170:8080/file/upload/').then(
             response => {
                 // console.log(response.data)
                 return response.data;
