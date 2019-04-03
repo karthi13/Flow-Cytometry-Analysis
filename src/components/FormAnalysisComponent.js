@@ -16,7 +16,6 @@ export default class FormAnalysisComponent extends Component {
             validated: false,
             value: new Date(),
             modalShow: false,
-            sendPreprocessData : {}
         };
 
         // this.getFilesFromBucket= this.getFilesFromBucket.bind(this);
@@ -24,9 +23,9 @@ export default class FormAnalysisComponent extends Component {
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange (date) { this.setState({ value: date }); }
+    handleChange(date) { this.setState({ value: date }); }
 
-    handleSubmit (event) {
+    handleSubmit(event) {
         const form = event.currentTarget;
         if (form.checkValidity() === false) {
             event.preventDefault();
@@ -39,8 +38,25 @@ export default class FormAnalysisComponent extends Component {
         this.setState({
             ...this.state,
             modalShow: !this.state.modalShow,
-            selectedFiles : data
+            selectedFiles: data
         });
+    }
+
+    onPreprocessFilesSubmit = () => {
+        const sendData = this.state.selectedFiles.map((state) => {
+            console.log(this.state.data.files[state])
+            return this.state.data.files[state]
+        })
+        console.log(sendData);
+        axios.post('http://127.0.0.1:8000/file/preprocess/', {
+            selectedFiles: sendData
+        })
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 
 
@@ -67,9 +83,9 @@ export default class FormAnalysisComponent extends Component {
 
         const { validated } = this.state;
         const files = this.state.data ? this.state.data.files : null;
-        const selected = this.state.selectedFiles ? this.state.selectedFiles.map((state,index) =>{
+        const selected = this.state.selectedFiles ? this.state.selectedFiles.map((state, index) => {
             return <ListGroup.Item key={index}>{this.state.data.files[state]}</ListGroup.Item>
-        }): null;
+        }) : null;
 
         console.log(this.state.filter)
 
@@ -111,7 +127,7 @@ export default class FormAnalysisComponent extends Component {
                                 </FormGroup>
                             </Form.Group>
                             <Form.Group as={Col} md={6}>
-                                <Form.Label>Radios</Form.Label>
+                                <Form.Label></Form.Label>
                                 <Form.Group as={Row} controlId="formHorizontalCheck">
                                     <Col sm={{ offset: 1 }}>
                                         <Form.Check
@@ -154,7 +170,7 @@ export default class FormAnalysisComponent extends Component {
                                 {selected}
                             </ListGroup>
                         </Form.Group>
-                        <Button type="submit">Preprocess</Button>
+                        <Button type="submit" onClick={this.onPreprocessFilesSubmit}>Preprocess</Button>
                     </Form>
                 </Container>
 

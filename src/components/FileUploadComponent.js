@@ -7,7 +7,7 @@ import '../Styles/Fileupload.css';
 export default class FileComponent extends Component {
 
     render() {
-        const URL = "http://127.0.0.1:8000/file/upload/";
+        const URL = "http://35.239.90.170:8080/file/upload/";
 
         return (
             <Fragment>
