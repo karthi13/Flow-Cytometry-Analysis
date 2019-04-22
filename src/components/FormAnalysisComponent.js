@@ -8,6 +8,8 @@ import DatePicker from 'react-datepicker';
 import '../Styles/HomeStyles.css';
 import { ModalComponent } from './index'
 import axios from 'axios';
+import ChartComponent from './ChartComponent';
+import * as lodash from 'lodash';
 
 export default class FormAnalysisComponent extends Component {
     constructor(props) {
@@ -16,11 +18,13 @@ export default class FormAnalysisComponent extends Component {
             validated: false,
             value: new Date(),
             modalShow: false,
+            chartdata: []
         };
 
         // this.getFilesFromBucket= this.getFilesFromBucket.bind(this);
         this.getSelectedFiles = this.getSelectedFiles.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.onPreprocessFilesSubmit = this.onPreprocessFilesSubmit.bind(this)
     }
 
     handleChange(date) { this.setState({ value: date }); }
@@ -42,21 +46,25 @@ export default class FormAnalysisComponent extends Component {
         });
     }
 
-    onPreprocessFilesSubmit = () => {
+    async onPreprocessFilesSubmit() {
         const sendData = this.state.selectedFiles.map((state) => {
             console.log(this.state.data.files[state])
             return this.state.data.files[state]
         })
         console.log(sendData);
-        axios.post('http://127.0.0.1:8000/file/preprocess/', {
+        const chartdata = await axios.post('http://127.0.0.1:8000/file/preprocess/', {
             selectedFiles: sendData
         })
             .then(function (response) {
-                console.log(response);
+                console.log(response.data);
+                return response.data;
+                // this.setState({chartData: response.data})
+                // console.log(this.state)
             })
             .catch(function (error) {
                 console.log(error);
             });
+        this.setState({ chartdata })
     }
 
 
@@ -86,9 +94,21 @@ export default class FormAnalysisComponent extends Component {
         const selected = this.state.selectedFiles ? this.state.selectedFiles.map((state, index) => {
             return <ListGroup.Item key={index}>{this.state.data.files[state]}</ListGroup.Item>
         }) : null;
-
-        console.log(this.state.filter)
-
+        const showChartButton = lodash.isEmpty(this.state.chartdata) ? false : true;
+        console.log(this.state)
+        const modalTitle = showChartButton ? 'Preprocesses Scatter Plot' : 'Select FCS Files';
+        const chartButton = showChartButton ? (
+        <Button
+            variant="primary"
+            onClick={() => this.setState({ modalShow: true })}
+        >
+            {'Show Chart'}
+        </Button>
+        ) : null;
+            // const chartData = !lodash.isEmpty(this.state.chartdata) ? this.state.chartdata 
+        const ShowChart = !lodash.isEmpty(this.state.chartdata) ? (
+            <ChartComponent data={this.state.chartdata}/>
+        ) : null;
         let modalClose = () => this.setState({ modalShow: false });
 
         return (
@@ -109,7 +129,12 @@ export default class FormAnalysisComponent extends Component {
                                 >
                                     Select Files
                                 </Button>
-                                <ModalComponent show={this.state.modalShow} onHide={modalClose} body={files} passstate={this.getSelectedFiles} />
+                                {/* <ModalComponent
+                                    show={this.state.modalShow}
+                                    onHide={modalClose}
+                                    body={files}
+                                    passstate={this.getSelectedFiles}
+                                    title={'Select FCS Files'} /> */}
 
                             </Form.Group>
                         </Form.Row>
@@ -123,7 +148,12 @@ export default class FormAnalysisComponent extends Component {
                             <Form.Group as={Col} md={6}>
                                 <Form.Label>Date</Form.Label>
                                 <FormGroup controlId="required">
-                                    <DatePicker required className="datepicker" onChange={this.handleChange} placeholder="Placeholder" selected={this.state.value} id="required_example" />
+                                    <DatePicker required
+                                        className="datepicker"
+                                        onChange={this.handleChange}
+                                        placeholder="Placeholder"
+                                        selected={this.state.value}
+                                        id="required_example" />
                                 </FormGroup>
                             </Form.Group>
                             <Form.Group as={Col} md={6}>
@@ -154,7 +184,11 @@ export default class FormAnalysisComponent extends Component {
                         <Form.Row>
                             <Form.Group as={Col} md="6" controlId="validationCustom03">
                                 <Form.Label>Filter</Form.Label>
-                                <Form.Control type="text" placeholder="Filter" required onChange={(e) => this.setState({ filter: e.target.value })} />
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Filter"
+                                    required
+                                    onChange={(e) => this.setState({ filter: e.target.value })} />
                             </Form.Group>
                             <Form.Group as={Col} md="6" controlId="validationCustom04">
                                 <Form.Label>Plant</Form.Label>
@@ -171,9 +205,17 @@ export default class FormAnalysisComponent extends Component {
                             </ListGroup>
                         </Form.Group>
                         <Button type="submit" onClick={this.onPreprocessFilesSubmit}>Preprocess</Button>
+                        {chartButton}
+                        <ModalComponent
+                            show={this.state.modalShow}
+                            onHide={modalClose}
+                            title={modalTitle}
+                            body={files}
+                            passstate={this.getSelectedFiles}
+                            data={this.state.chartdata} />
                     </Form>
                 </Container>
-
+                {ShowChart}
             </Card>
         );
     }

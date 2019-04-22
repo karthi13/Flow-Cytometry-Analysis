@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import '../Styles/Fileupload.css'
+import _ from 'lodash';
 
 export default class MyVerticallyCenteredModal extends React.Component {
 
@@ -27,7 +28,6 @@ export default class MyVerticallyCenteredModal extends React.Component {
 
     // var {trigger} = this.props;
     const body = this.props.body ? this.props.body.map((state, index) => (
-
       <Form.Check key={index}   type='checkbox' id={index} >
         <Form.Check.Input onChange={() => this.handleChecked(index)} type='checkbox' isValid />
         <Form.Check.Label>{state}</Form.Check.Label>
@@ -45,7 +45,7 @@ export default class MyVerticallyCenteredModal extends React.Component {
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
-            Select FCS Files
+            {this.props.title}
             </Modal.Title>
         </Modal.Header>
         <Modal.Body data-spy="scroll">
